@@ -44,87 +44,231 @@
  *   uartlite    Configurable only in HW design
  *   ps7_uart    115200 (configured by bootrom/bsp)
  */
-/*****************************************************
-Getting Started Guide for Arty-Z7
-
-This demo displays the status of the buttons on the
-LEDs and prints a message to the serial communication
-when a switch is on.
-
-Terminal Settings:
-   -Baud: 115200
-   -Data bits: 8
-   -Parity: no
-   -Stop bits: 1
-
-9/21/17: Created by JPEYRON
-****************************************************/
 
 #include <stdio.h>
 #include "platform.h"
-#include <xgpio.h>
+#include "xil_printf.h"
+#include "einit.h"
+#include "ttc.h"
+#include "xscugic.h"
+#include "xil_types.h"
 #include "xparameters.h"
-#include "sleep.h"
+#include "xil_io.h"
+#include "xil_exception.h"
+#include "xil_cache.h"
 
-#define BRAM_BASE (0x40000000)	//BRAM
-#define ADDRXXX0 (0x41210000)	//axigpio_1L
-#define ADDRXXX1 (0x4121FFFF)	//axigpio_1H
-#define ADDRXXX2 (0x41200000)	//axigpio_0L
-#define ADDRXXX3 (0x4120FFFF)	//axigpio_0H
+
+#define INTC_DEVICE_ID		XPAR_SCUGIC_0_DEVICE_ID
+#define INTC_DEVICE_INT_ID	42//0x0E
+
+int ScuGicExample(u16 DeviceId);
+int SetUpInterruptSystem(XScuGic *XScuGicInstancePtr);
+void DeviceDriverHandler(void *CallbackRef);
+
+XScuGic InterruptController; 	     /* Instance of the Interrupt Controller */
+static XScuGic_Config *GicConfig;    /* The configuration parameters of the
+                                       controller */
+volatile static int InterruptProcessed = FALSE;
+
+static void AssertPrint(const char8 *FilenamePtr, s32 LineNumber){
+	xil_printf("ASSERT: File Name: %s ", FilenamePtr);
+	xil_printf("Line Number: %d\r\n",LineNumber);
+}
 
 
 int main()
 {
 
-   XGpio input, output;
-   int button_data = 0b00;
-   int switch_data = 0;
-   unsigned int check0h, check0l, check1h, check1l = 0;
-   unsigned int* checkp0h, *checkp0l, *checkp1h, *checkp1l;
+    init_platform();
+    unsigned int * p;
+    unsigned short int a=0, b=0;
+	static TIMERCONFIG_1* pTmr0;
+	int cnt= 0;
+	pTmr0 = gettimer();
+	configtimer(pTmr0, 50000, 1);
+	inittimer(pTmr0, 1);
+	a=gettimercnt(pTmr0);
 
-   unsigned int *checkblk2 = (unsigned int*)(BRAM_BASE+0x10);
-   unsigned int *checkblk = (unsigned int*)(BRAM_BASE+0x1);
-/*
-   checkp0h = (unsigned int*)(ADDRXXX2+0x0008);	//shoudl contain switch
-   checkp0l = (unsigned int*)ADDRXXX2; //should contain btn data
-   checkp1h = (unsigned int*)(ADDRXXX0+0x0008);	//should contain null
-   checkp1l = (unsigned int*)ADDRXXX0;	//should contain leds
+		int Status;
+
+		/*
+		 * Setup an assert call back to get some info if we assert.
+		 */
+		Xil_AssertSetCallback(AssertPrint);
+		xil_printf("GIC Example Test\r\n");
+		/*
+		 *  Run the Gic example , specify the Device ID generated in xparameters.h
+		 */
+		Status = ScuGicExample(INTC_DEVICE_ID);
+		if (Status != XST_SUCCESS) {
+			xil_printf("GIC Example Test Failed\r\n");
+		//	return XST_FAILURE;
+		}
+		xil_printf("Successfully ran GIC Example Test\r\n");
+		//return XST_SUCCESS;
+	starttimer(pTmr0);
+
+	while(1){
+		cnt++;
+		a=gettimercnt(pTmr0);
+		a = *(pTmr0->cnt);
+		cnt++;
+		b=gettimercnt(pTmr0);
+		cnt++;
+		cnt--;
+		int Status;
+	}
+    cleanup_platform();
+    return 0;
+}
+int ScuGicExample(u16 DeviceId)
+{
+	int Status;
+
+	/*
+	 * Initialize the interrupt controller driver so that it is ready to
+	 * use.
+	 */
+	GicConfig = XScuGic_LookupConfig(DeviceId);
+	if (NULL == GicConfig) {
+		return XST_FAILURE;
+	}
+
+	Status = XScuGic_CfgInitialize(&InterruptController, GicConfig,
+					GicConfig->CpuBaseAddress);
+	if (Status != XST_SUCCESS) {
+		return XST_FAILURE;
+	}
+
+
+	/*
+	 * Perform a self-test to ensure that the hardware was built
+	 * correctly
+	 */
+	Status = XScuGic_SelfTest(&InterruptController);
+	if (Status != XST_SUCCESS) {
+		return XST_FAILURE;
+	}
+
+
+	/*
+	 * Setup the Interrupt System
+	 */
+	Status = SetUpInterruptSystem(&InterruptController);
+	if (Status != XST_SUCCESS) {
+		return XST_FAILURE;
+	}
+
+	/*
+	 * Connect a device driver handler that will be called when an
+	 * interrupt for the device occurs, the device driver handler performs
+	 * the specific interrupt processing for the device
+	 */
+	Status = XScuGic_Connect(&InterruptController, INTC_DEVICE_INT_ID,
+			   (Xil_ExceptionHandler)DeviceDriverHandler,
+			   (void *)&InterruptController);
+
+	if (Status != XST_SUCCESS) {
+		return XST_FAILURE;
+	}
+
+	/*
+	 * Enable the interrupt for the device and then cause (simulate) an
+	 * interrupt so the handlers will be called
+	 */
+	XScuGic_Enable(&InterruptController, INTC_DEVICE_INT_ID);
+
+	/*
+	 *  Simulate the Interrupt
+	 */
+/*	Status = XScuGic_SoftwareIntr(&InterruptController,
+					INTC_DEVICE_INT_ID,
+					XSCUGIC_SPI_CPU0_MASK);
+	if (Status != XST_SUCCESS) {
+		return XST_FAILURE;
+	}
 */
+	/*
+	 * Wait for the interrupt to be processed, if the interrupt does not
+	 * occur this loop will wait forever
+	 */
+	//while (1) {
+		/*
+		 * If the interrupt occurred which is indicated by the global
+		 * variable which is set in the device driver handler, then
+		 * stop waiting
+		 */
+		//if (InterruptProcessed) {
+		//	break;
+		//}
+	//}
 
-   XGpio_Initialize(&input, XPAR_AXI_GPIO_0_DEVICE_ID);	//initialize input XGpio variable
-   XGpio_Initialize(&output, XPAR_AXI_GPIO_1_DEVICE_ID);	//initialize output XGpio variable
+	return XST_SUCCESS;
+}
 
-   XGpio_SetDataDirection(&input, 1, 0xF);			//set first channel tristate buffer to input
-   XGpio_SetDataDirection(&input, 2, 0xF);			//set second channel tristate buffer to input
+/******************************************************************************/
+/**
+*
+* This function connects the interrupt handler of the interrupt controller to
+* the processor.  This function is seperate to allow it to be customized for
+* each application.  Each processor or RTOS may require unique processing to
+* connect the interrupt handler.
+*
+* @param	XScuGicInstancePtr is the instance of the interrupt controller
+*		that needs to be worked on.
+*
+* @return	None.
+*
+* @note		None.
+*
+****************************************************************************/
+int SetUpInterruptSystem(XScuGic *XScuGicInstancePtr)
+{
 
-   XGpio_SetDataDirection(&output, 1, 0x0);		//set first channel tristate buffer to output
+	/*
+	 * Connect the interrupt controller interrupt handler to the hardware
+	 * interrupt handling logic in the ARM processor.
+	 */
+	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_INT,
+			(Xil_ExceptionHandler) XScuGic_InterruptHandler,
+			XScuGicInstancePtr);
 
-   init_platform();
+	/*
+	 * Enable interrupts in the ARM
+	 */
+	Xil_ExceptionEnable();
 
-   while(1){
+	return XST_SUCCESS;
+}
 
-      button_data = XGpio_DiscreteRead(&input, 1);	//get button data
-
-      XGpio_DiscreteWrite(&output, 1, button_data);	//write button data to the LEDs
-
-      //*checkblk2 = 0x40;
-      switch_data = XGpio_DiscreteRead(&input, 2);	//get switch data
-
-      //print message dependent on whether one or more buttons are pressed
-      if(switch_data == 0b00){} //do nothing
-
-      else if(switch_data == 0b01)
-         xil_printf("switch 0 on\n\r");
-
-      else if(switch_data == 0b10)
-         xil_printf("switch 1 on\n\r");
-
-      else
-         xil_printf("both switches on\n\r");
-
-      usleep(200);			//delay
-
-   }
-   cleanup_platform();
-   return 0;
+/******************************************************************************/
+/**
+*
+* This function is designed to look like an interrupt handler in a device
+* driver. This is typically a 2nd level handler that is called from the
+* interrupt controller interrupt handler.  This handler would typically
+* perform device specific processing such as reading and writing the registers
+* of the device to clear the interrupt condition and pass any data to an
+* application using the device driver.  Many drivers already provide this
+* handler and the user is not required to create it.
+*
+* @param	CallbackRef is passed back to the device driver's interrupt
+*		handler by the XScuGic driver.  It was given to the XScuGic
+*		driver in the XScuGic_Connect() function call.  It is typically
+*		a pointer to the device driver instance variable.
+*		In this example, we do not care about the callback
+*		reference, so we passed it a 0 when connecting the handler to
+*		the XScuGic driver and we make no use of it here.
+*
+* @return	None.
+*
+* @note		None.
+*
+****************************************************************************/
+void DeviceDriverHandler(void *CallbackRef)
+{
+	/*
+	 * Indicate the interrupt has been processed using a shared variable
+	 */
+	InterruptProcessed = TRUE;
 }
