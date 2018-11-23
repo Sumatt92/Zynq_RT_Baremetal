@@ -12,7 +12,21 @@ Additional hardware will be added as needed to support the developement of perip
 **RTL/Bitstream/VHDL**
 A significant portion of the code for this project will be RTL or HDL developed in the vivado design suite.This will be included although
 it may not be organized until a later time. That is to say, at present there is not a clear idea of how to contain and present those files
-in this repository so they may not be as structured as the c source code. This should be remedied at a future time.
+in this repository so they may not be as structured as the c source code. This should be remedied at a future time.  
+
+**Peripherals/Drivers**
+This project should serve as an example of the use of the following drivers/peripherals and functionality:
+*  UART (rs232 or generic 232-esq serial w/o handshake)
+*  Timers
+*  A variety of interrelated interrupts driving real-time behaviour 
+*  SPI running >=6mhz
+*  QSPI flash use, including boot
+*  Tightly coupled acceleration of PS with PL fabric
+*  Less-tightly coupled PL logic that offloads certain tasks from the PS (pwm and/or hysteretic control of external system)
+*  Manipulation of cacheing to improve determinacy of certain real-time tasks (non-cached or always cached data/instructions)
+*  Use of a medium-speed off-board communication protocol, most likely 100mbit ethernet
+*  Real-time control of a high speed power electronics, either SMPS or 3ph motor drive
+*  Filtering and processing of ADC data, both from onboard ADC and a high-speed external ADC
 
 ## Status
 11/22/2018  
