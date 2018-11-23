@@ -7,7 +7,7 @@ Further, this repository will serve as an exploration of github.
 
 ## Useful Files
   * [repo_structure](
-        zynq_power_control_1/repository_structure.md
+        https://github.com/Sumatt92/zynq_power_control_1/blob/master_v2/repository_structure.md
       )
 
 
