@@ -3,14 +3,13 @@
 The aim of this project is to explore features of the xilinx zync z7020 running bare metal. This repository will focus on C source created in the SDK rather than the HDL/bitstream aspect of the project. 
 The focus will be primarily on real time control applications and the peripherals commonly used in those applications. 
 
+This repository should be able to serve as a starting point for engineers looking to create their own real-time control systems employing the Zync. To ensure this it is very important to make sure that this repo is rigidly and simply structured. Beyond version controll it should contain documentation, links and other resources for zync developers.
 Further, this repository will serve as an exploration of github.
 
-## Useful Files
-  * [repo_structure](
+## Navigating This Repository  
+The basic repository contents should be described in [repo_structure](
         https://github.com/Sumatt92/zynq_power_control_1/blob/master_v2/repository_structure.md
       )
-
-
 
 ## Specifics
 **Hardware**  
@@ -44,4 +43,8 @@ The bitstream has been exported to the SDK. A bsp package has been auto-generate
 
 The timer is controlled by a custom driver whereas the GIC is operated through the xilinx driver. The main file is largely copy+pasted from the example code [xscugic_example.c](https://github.com/Xilinx/embeddedsw/blob/master/XilinxProcessorIPLib/drivers/scugic/examples/xscugic_example.c).
 
+## Useful Files
+  * [repo_structure](
+        https://github.com/Sumatt92/zynq_power_control_1/blob/master_v2/repository_structure.md
+      )
 
