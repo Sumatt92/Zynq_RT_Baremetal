@@ -38,7 +38,7 @@ This project should serve as an example of the use of the following drivers/peri
 ## Status
 11/22/2018  
 A bitstream has been generated from a block diagram built in the ip integrator of vivado. This presently contains the ps (a9's), an axi to gpio interface, an axi to block memory interface, a block memory generator and a small piece of vhdl wrapped into a block symbol. The vdhl simply writes a test value into the block memory for the hps to read through an axi-block_memory interface. This could serve as a medium bandwith channel of communication between the hard processor and a large piece of custom logic in the PL. 
-![block diagram](/path/img.jpg "Title")
+![block diagram](https://github.com/Sumatt92/Zynq_RT_Baremetal/blob/master_v2/block_1.jpg)
 
 The bitstream has been exported to the SDK. A bsp package has been auto-generated. The main function is defined in a file called helloworld.c . The current revision is called p4, using p4_bsp and basline_1_wrapper_hw_platform_1. The main function is a test of the interrupt controller driver (the GIC, generic interrupt controller), and the ttc (a timer). The timer triggers an interrupt which is then offloaded to a defined handler. 
 
