@@ -55,6 +55,6 @@ Main application config and inits a timer, config and inits GIC. When timer reac
       
 ## Useful Links
 * **xilinx**  
-        * [TRM](
+   * [TRM](
 https://www.xilinx.com/support/documentation/user_guides/ug585-Zynq-7000-TRM.pdf)
 
