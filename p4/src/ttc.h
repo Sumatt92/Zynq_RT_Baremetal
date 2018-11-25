@@ -8,6 +8,7 @@
 #ifndef TTC_H_
 #define TTC_H_
 
+#include "head_wrap.h"
 //this file contains the relative offsets of the control registers for ttc's;
 
 #define XTTCPS_CLK_CNTRL_OFFSET		0x00000000
@@ -50,21 +51,27 @@
 
 typedef struct{
 	unsigned char ID;	/*lower 3 bits denote the hardware this is on. bit 2 indicates ttc module 1 or 0. bit 1..0
-/*indicates which of the three sub-timers the instance is on. EXAMPLE: 0b001 is timer_1 of ttc_0
+ *indicates which of the three sub-timers the instance is on. EXAMPLE: 0b001 is timer_1 of ttc_0
  * EXAMPLE2 0b110 is timer_2 of ttc_1; counting of modules is done from 0*/
 	unsigned int tripon; //MSB enables interrupt when '1'. Lower 16 bits are the timer value to trip int at;
-	void(*function)(); //points to isr
+	void* handler; //points to user handler
+	unsigned short int* cnt;
 	unsigned int status; //bit0:on/off, 1=on;
+	XScuGic_Config *GicConfig;
+	XScuGic* InterruptController;
+	void* harg; //handler argument
 }TIMERCONFIG_1;
 
+#define ZEROED_TCONF (0, 0, NULL, 0)
 TIMERCONFIG_1* gettimer();
 void killtimer(TIMERCONFIG_1* pTim);
-int configtimer(TIMERCONFIG_1* pTim, unsigned short int sttime, unsigned char resource);
+int configtimer(TIMERCONFIG_1* pTim, u16 sttime, u8 resource, XScuGic_Config *GicConfig, XScuGic* InterruptController);
 void resettimer(TIMERCONFIG_1* pTim);
 int starttimer(TIMERCONFIG_1* pTim);
 unsigned short int gettimercnt(TIMERCONFIG_1* pTim);
 int inittimer(TIMERCONFIG_1* pTim, unsigned char intr);
 int tim_isused(TIMERCONFIG_1* pTim);
-
+int init_Tint(TIMERCONFIG_1* pTim);
+void sethandler(TIMERCONFIG_1* pTim, void* handler, void* arg);
 
 #endif /* TTC_H_ */
