@@ -52,4 +52,9 @@ Main application config and inits a timer, config and inits GIC. When timer reac
   * [repo_structure](
         https://github.com/Sumatt92/zynq_power_control_1/blob/master_v2/repository_structure.md
       )
+      
+## Useful Links
+* **xilinx**
+        * [TRM](
+https://www.xilinx.com/support/documentation/user_guides/ug585-Zynq-7000-TRM.pdf)
 
