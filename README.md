@@ -54,7 +54,13 @@ Main application config and inits a timer, config and inits GIC. When timer reac
       )
       
 ## Useful Links
-* **xilinx**  
-   * [TRM](
+* **Xilinx**  
+   * [TechnicalReferenceManual](
 https://www.xilinx.com/support/documentation/user_guides/ug585-Zynq-7000-TRM.pdf)
 
+* **Digilent**
+   * [IP_integrator](
+https://reference.digilentinc.com/vivado/getting-started-with-ipi/start)
+
+* **Arm**
+   * [A9 TRM](https://developer.arm.com/docs/100511/latest/preface)
