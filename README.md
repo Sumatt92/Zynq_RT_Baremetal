@@ -34,6 +34,7 @@ This project should serve as an example of the use of the following drivers/peri
 *  Use of a medium-speed off-board communication protocol, most likely 100mbit ethernet
 *  Real-time control of a high speed power electronics, either SMPS or 3ph motor drive
 *  Filtering and processing of ADC data, both from onboard ADC and a high-speed external ADC
+*  Implement AMP using both arm cores and some mechanism of data exchange (shared memory, DMA, message passing)
 
 ## Status
 11/22/2018  
