@@ -44,7 +44,9 @@ The bitstream has been exported to the SDK. A bsp package has been auto-generate
 
 The timer is controlled by a custom driver whereas the GIC is operated through the xilinx driver. The main file is largely copy+pasted from the example code [xscugic_example.c](https://github.com/Xilinx/embeddedsw/blob/master/XilinxProcessorIPLib/drivers/scugic/examples/xscugic_example.c).
 
-
+11/25/2018
+Merged master_v2 back to master with new README.MD, repo_structure.txt, new main application source that follows the directives in the new README.MD. 
+Main application config and inits a timer, config and inits GIC. When timer reaches defined value it causes an interrupt. The GIC calls the user defined handler that sets a user defined variable. The interface to BRAM is still available to the PS, although it is not used in this program.
 ## Useful Files
   * [repo_structure](
         https://github.com/Sumatt92/zynq_power_control_1/blob/master_v2/repository_structure.md
