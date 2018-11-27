@@ -1,6 +1,6 @@
 # Explore_Zync
 ## Overview    
-The aim of this project is to explore features of the xilinx zync z7020 running bare metal. This repository will focus on C source created in the SDK rather than the HDL/bitstream aspect of the project. 
+The aim of this project is to explore features of the xilinx zync z7020 running bare metal.
 The focus will be primarily on real time control applications and the peripherals commonly used in those applications. 
 
 This repository should be able to serve as a starting point for engineers looking to create their own real-time control systems employing the Zync. To ensure this it is very important to make sure that this repo is rigidly and simply structured. Beyond version controll it should contain documentation, links and other resources for zync developers.
